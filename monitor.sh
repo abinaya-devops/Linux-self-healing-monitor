@@ -1,10 +1,15 @@
 #!/bin/bash
 
+MEMORY_THRESHOLD=80
+DISK_THRESHOLD=80
+
 echo "Linux Self-Healing Monitor Started"
 
 DATE=$(date)
 
 echo "Current Time: $DATE"
+
+touch incident.log
 
 echo "--------------------"
 
@@ -18,7 +23,7 @@ echo "Memory Usage: $MEMORY %"
 
 MEMORY_INT=$(printf "%.0f" "$MEMORY")
 
-if [ "$MEMORY_INT" -gt 80 ]
+if [ "$MEMORY_INT" -gt "$MEMORY_THRESHOLD" ]
 then
     echo "WARNING: Memory Usage Above 80%"
     echo "$(date) - Memory Usage Above 80%" >> incident.log
@@ -30,7 +35,7 @@ echo "Disk Usage: $DISK"
 
 DISK_PERCENT=$(df -h / | awk 'NR==2 {gsub("%","",$5); print $5}')
 
-if [ "$DISK_PERCENT" -gt 80 ]
+if [ "$DISK_PERCENT" -gt "$DISK_THRESHOLD" ]
 then
     echo "WARNING: Disk Usage Above 80%"
     echo "$(date) - Disk Usage Above 80%" >> incident.log
@@ -47,9 +52,18 @@ else
 
     sudo systemctl restart $SERVICE
 
-    echo "$(date) - $SERVICE was down and restarted" >> incident.log
+    sleep 2
 
-    echo "$SERVICE restarted successfully"
+    if systemctl is-active --quiet $SERVICE
+    then
+        echo "$SERVICE restarted successfully"
+        echo "$(date) - $SERVICE restarted successfully" >> incident.log
+    else
+        echo "CRITICAL: $SERVICE failed to restart"
+        echo "$(date) - CRITICAL: $SERVICE failed to restart" >> incident.log
+    fi
 fi
 
-echo "$(date) - Health Check Completed" >> monitor.log  
+echo "$(date) - Health Check Completed" >> monitor.log
+
+echo "Health Check Status: OK"

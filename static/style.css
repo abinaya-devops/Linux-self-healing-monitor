@@ -1,0 +1,273 @@
+body{
+    margin:0;
+    padding:0;
+    font-family:'Segoe UI',sans-serif;
+    background:#0f172a;
+    color:white;
+}
+
+.header{
+    text-align:center;
+    padding:30px;
+}
+
+.header h1{
+    margin:0;
+    font-size:42px;
+}
+
+.header p{
+    color:#94a3b8;
+}
+
+.version{
+    display:inline-block;
+    margin-top:10px;
+    background:#2563eb;
+    padding:8px 16px;
+    border-radius:20px;
+}
+
+.updated{
+    text-align:center;
+    color:#cbd5e1;
+    margin-bottom:25px;
+}
+
+.dashboard{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:20px;
+    padding:20px;
+}
+
+.card{
+    background:rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:25px;
+    text-align:center;
+    backdrop-filter:blur(10px);
+    box-shadow:0 4px 20px rgba(0,0,0,0.3);
+    transition:0.3s;
+}
+
+.card:hover{
+    transform:translateY(-5px);
+}
+
+.card h2{
+    margin-bottom:15px;
+}
+
+.value{
+    font-size:32px;
+    font-weight:bold;
+}
+
+.running{
+    color:#00ff88;
+    font-weight: bold;
+}
+
+.down{
+    color: #ff4d4d;
+    font-weight: bold;
+}
+
+.health-card{
+    margin:20px;
+    background:#111827;
+    padding:30px;
+    border-radius:20px;
+    text-align:center;
+}
+
+.gauge{
+    width:180px;
+    height:180px;
+    margin:20px auto;
+
+    border-radius:50%;
+
+    background:
+    conic-gradient(
+        #22c55e 0% 100%,
+        #e5e7eb 100% 100%
+    );
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.gauge-inner{
+    width:130px;
+    height:130px;
+
+    background:black;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:30px;
+    font-weight:bold;
+}
+
+.health-value{
+    font-size:48px;
+    font-weight:bold;
+}
+
+.alert-card {
+    background:light grey;
+    padding:20px;
+    border-radius:15px;
+    margin-top:20px;
+    text-align:center;
+    box-shadow:0 4px 15px rgba(0,0,0,0.1);
+}
+
+.system-card{
+    width:90%;
+    margin:20px;
+    background:rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:25px;
+}
+
+.system-card h2{
+    margin:0 0 20px 0;
+}
+
+.system-item{
+    padding:12px;
+    margin:10px 0;
+    border-radius:8px;
+    font-weight:bold;
+}
+
+.system-item strong{
+    color:white;
+}
+
+.healthy{
+    color:#16a34a;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.warning{
+    color:#f59e0b;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.critical{
+    color:#ef4444;
+    font-size:28px;
+    font-weight:bold;
+}
+
+.events{
+    margin:20px;
+    background:rgba(255,255,255,0.08);
+    border-radius:20px;
+    padding:25px;
+}
+
+.event-item{
+    padding:12px;
+    margin:10px 0;
+    border-radius:8px;
+    font-weight:bold;
+}
+
+.event-item.success{
+    background:#d1fae5;
+    color:#065f46;
+}
+
+.event-item.warning{
+    background:#fef3c7;
+    color:#92400e;
+}
+
+.event-item.critical{
+    background:#fee2e2;
+    color:#991b1b;
+}
+
+.event-item.info{
+    background:#dbeafe;
+    color:#1e3a8a;
+}
+
+.notification{
+    width:90%;
+    margin:20px auto;
+    padding:15px;
+
+    border-radius:10px;
+
+    text-align:center;
+
+    font-size:18px;
+    font-weight:bold;
+
+    background:#1f2937;
+    color:white;
+
+    transition:0.3s;
+}
+
+.download-section{
+    text-align:center;
+    margin:30px;
+}
+
+.download-btn{
+
+    background:#2563eb;
+    color:white;
+
+    padding:12px 25px;
+
+    text-decoration:none;
+
+    border-radius:8px;
+
+    font-weight:bold;
+
+    transition:.3s;
+}
+
+.download-btn:hover{
+
+    background:#1d4ed8;
+}
+
+footer{
+    text-align:center;
+    color:#94a3b8;
+    padding:30px;
+}
+
+.chart-card{
+    width:90%;
+    margin:30px auto;
+    padding:25px;
+
+    background:#101827;
+
+    border-radius:20px;
+
+    box-shadow:0 0 20px rgba(0,0,0,0.3);
+}
+
+.chart-card h2{
+    margin-bottom:20px;
+}
+

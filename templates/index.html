@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Linux Self-Healing Monitor v5.0</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+<div class="header">
+    <h1>🚀 Linux Self-Healing Monitor</h1>
+    <p>Real-Time Infrastructure Monitoring Dashboard</p>
+    <span class="version">v5.0</span>
+</div>
+
+<div class="updated">
+    Last Updated: {{ data.updated }}
+</div>
+
+<div id="notification" class="notification">
+    ✅ All Systems Operational
+</div>
+
+<div class="dashboard">
+
+    <div class="card">
+        <h2>🖥 CPU Usage</h2>
+        <div class="value" id="cpu">{{ data.cpu }}</div>
+    </div>
+
+    <div class="card">
+        <h2>🧠 Memory Usage</h2>
+        <div class="value" id="memory">{{ data.memory }}</div>
+    </div>
+
+    <div class="card">
+        <h2>💾 Disk Usage</h2>
+        <div class="value" id="disk">{{ data.disk }}</div>
+    </div>
+
+    <div class="card">
+        <h2>⚙ Service Status</h2>
+        <div id="service" class="value {{ data.status_class }}"> {{ data.service }} </div>
+    </div>
+
+</div>
+
+<div class="health-card">
+
+    <h2>Infrastructure Health Score</h2>
+
+    <div class="gauge">
+
+        <div class="gauge-inner" id="health">
+            {{ data.health }}
+        </div>
+
+    </div>
+
+</div>
+
+<div class="alert-card">
+    <h2>🚨 System Alert Status</h2>
+
+    <div class="{{ data.status_class }}">
+        {{ data.status }}
+    </div>
+</div>
+
+<div class="chart-card">
+    <h2>📈 CPU Usage Trend</h2>
+
+    <canvas id="cpuChart"></canvas>
+</div>
+
+<div class="chart-card">
+    <h2>🧠 Memory Usage Trend</h2>
+
+    <canvas id="memoryChart"></canvas>
+</div>
+
+<div class="chart-card">
+    <h2>💾 Disk Usage Trend</h2>
+
+    <canvas id="diskChart"></canvas>
+</div>
+
+<div class="chart-card">
+    <h2>📊 Health Score Trend</h2>
+
+    <canvas id="healthChart"></canvas>
+</div>
+
+<div class="system-card">
+    <h2>🖥️ System Information</h2>
+
+    <div class="system-item">
+        <strong>Hostname:</strong> {{ data.hostname }}
+    </div>
+
+    <div class="system-item">
+        <strong>Operating System:</strong> {{ data.os_name }}
+    </div>
+
+    <div class="system-item">
+        <strong>Uptime:</strong> {{ data.uptime }}
+    </div>
+</div>
+
+<div class="events">
+    <h2>📋 Recent Events</h2>
+    
+    <div id="incident-list">
+
+    {% for event in events %}
+        
+    {% if "CRITICAL" in event %}
+    <div class="event-item critical">🚨 {{ event }}</div>
+
+    {% elif "WARNING" in event %}
+    <div class="event-item warning">⚠  {{ event }}</div>
+
+    {% elif "successfully" in event %}
+    <div class="event-item success">✅ {{ event }}</div>
+
+    {% else %}
+    <div class="event-item info">ℹ  {{ event }}</div>
+
+    {% endif %}
+
+    {% endfor %}
+
+    </div>
+
+</div>
+
+<div class="download-section">
+
+    <a href="/download-log" class="download-btn">
+        📥 Download Incident Log
+    </a>
+
+</div>
+
+<footer>
+    Linux Self-Healing Monitor • Portfolio Project
+</footer>
+
+<script>
+
+const ctx = document.getElementById('cpuChart');
+
+const cpuChart = new Chart(ctx, {
+    type: 'line',
+
+    data: {
+        labels: ['1','2','3','4','5','6','7','8','9','10'],
+
+        datasets: [{
+            label: 'CPU %',
+            data: {{ cpu_history | tojson }},
+            borderWidth: 3,
+            tension: 0.4
+        }]
+    },
+
+    options: {
+        responsive: true
+    }
+});
+
+const memoryCtx = document.getElementById('memoryChart');
+
+const memoryChart = new Chart(memoryCtx, {
+    type: 'line',
+
+    data: {
+        labels: Array.from(
+            {length: {{ memory_history|length }}},
+            (_, i) => i + 1
+        ),
+
+        datasets: [{
+            label: 'Memory %',
+            data: {{ memory_history | tojson }},
+            borderWidth: 3,
+            tension: 0.4
+        }]
+    },
+
+    options: {
+        responsive: true
+    }
+});
+
+const diskCtx = document.getElementById('diskChart');
+
+const diskChart = new Chart(diskCtx, {
+    type: 'line',
+
+    data: {
+        labels: [...Array({{ disk_history|length }}).keys()],
+
+        datasets: [{
+            label: 'Disk %',
+            data: {{ disk_history | tojson }},
+            borderWidth: 3,
+            tension: 0.4
+        }]
+    },
+
+    options: {
+        responsive: true,
+
+        scales: {
+             y:{
+                min:0,
+                max:100
+             }
+        }
+    }
+});
+
+const healthCtx = document.getElementById('healthChart');
+
+const healthChart = new Chart(healthCtx, {
+    type: 'line',
+
+    data: {
+        labels: Array.from(
+            {length: {{ health_history|length }}},
+            (_, i) => i + 1
+        ),
+
+        datasets: [{
+            label: 'Health Score',
+            data: {{ health_history | tojson }},
+            borderWidth: 3,
+            tension: 0.4
+        }]
+    },
+
+    options: {
+        responsive: true,
+        scales: {
+            y: {
+                min: 0,
+                max: 100
+            }
+        }
+    }
+});
+
+async function updateDashboard(){
+
+    const response = await fetch("/api/data");
+
+    const data = await response.json();
+
+    document.getElementById("cpu").innerHTML = data.cpu;
+
+    document.getElementById("memory").innerHTML = data.memory;
+
+    document.getElementById("disk").innerHTML = data.disk;
+
+    document.getElementById("service").innerHTML = data.service;
+
+    document.getElementById("health").innerHTML = data.health;
+
+    document.getElementById("health").innerHTML = data.health;
+
+    let cpuValue = parseFloat(data.cpu);
+
+    cpuChart.data.labels.push("");
+    cpuChart.data.labels.shift();
+
+    cpuChart.data.datasets[0].data.push(cpuValue);
+    cpuChart.data.datasets[0].data.shift();
+
+    cpuChart.update();
+ 
+    let memoryValue = parseFloat(data.memory);
+
+    memoryChart.data.labels.push("");
+    memoryChart.data.labels.shift();
+
+    memoryChart.data.datasets[0].data.push(memoryValue);
+    memoryChart.data.datasets[0].data.shift();
+
+    memoryChart.update();
+
+    let diskValue = parseFloat(data.disk);
+
+    diskChart.data.labels.push("");
+    diskChart.data.labels.shift();
+
+    diskChart.data.datasets[0].data.push(diskValue);
+    diskChart.data.datasets[0].data.shift();
+
+    diskChart.update();
+
+    console.log(diskValue);
+ 
+    let healthValue = parseFloat(data.health);
+
+    healthChart.data.labels.push("");
+    healthChart.data.labels.shift();
+
+    healthChart.data.datasets[0].data.push(healthValue);
+    healthChart.data.datasets[0].data.shift();
+
+    healthChart.update();
+    
+    let incidentHtml = "";
+
+    data.incidents.forEach(event => {
+
+        if(event.includes("CRITICAL")){
+
+            incidentHtml += `<div class="event-item critical">🚨 ${event}</div>`;
+
+        }
+        else if(event.includes("WARNING")){
+
+            incidentHtml += `<div class="event-item warning">⚠ ${event}</div>`;
+
+        }
+        else if(event.includes("successfully")){
+
+            incidentHtml += `<div class="event-item success">✅ ${event}</div>`;
+
+        }
+        else{
+
+            incidentHtml += `<div class="event-item info">ℹ ${event}</div>`;
+        }
+
+    });
+
+    document.getElementById("incident-list").innerHTML = incidentHtml;
+
+
+    const notification = document.getElementById("notification");
+
+    if (parseFloat(data.health) >= 90){
+
+        notification.innerHTML = "✅ All Systems Operational";
+        notification.style.background = "#16a34a";
+
+    }
+    else if (parseFloat(data.health) >= 60){
+
+        notification.innerHTML = "⚠️ Warning: System Health Degraded";
+        notification.style.background = "#f59e0b";
+
+    }
+    else{
+
+        notification.innerHTML = "🚨 Critical Alert! Immediate Action Required";
+        notification.style.background = "#dc2626";
+
+    }
+
+}
+
+setInterval(updateDashboard, 10000);
+
+</script>
+
+</body>
+</html>
+

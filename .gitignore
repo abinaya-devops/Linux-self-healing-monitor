@@ -1,2 +1,5 @@
 monitor.log
 incident.log
+venv/
+__pycache__/
+*.pyc

@@ -189,7 +189,5 @@ Project screenshots are available inside the screenshots/ folder.
 
 Abinaya M
 
-Final Year BCA Student
-
 Aspiring DevOps Engineer | Cloud Computing Enthusiast
 
